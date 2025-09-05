@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins-yaml
+  labels:
+    app.kubernetes.io/name: jenkins-yaml
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: jenkins-yaml
+    app.kubernetes.io/component: controller
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+    - name: agent
+      port: 50000
+      targetPort: agent

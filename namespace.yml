@@ -1,0 +1,5 @@
+# Create a namespace for Jenkins
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: jenkins

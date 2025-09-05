@@ -1,0 +1,41 @@
+extends: default
+
+rules:
+  # Line length
+  line-length:
+    max: 120
+    level: warning
+
+  # Indentation
+  indentation:
+    spaces: 2
+    indent-sequences: true
+    check-multi-line-strings: false
+
+  # Comments
+  comments:
+    min-spaces-from-content: 2
+
+  # Document start
+  document-start:
+    present: false
+
+  # Truthy values (allow yes/no, true/false for Kubernetes)
+  truthy:
+    allowed-values: ['true', 'false', 'yes', 'no', 'on', 'off']
+    check-keys: false
+
+  # Key ordering (disable for Kubernetes files)
+  key-ordering: disable
+
+  # Empty lines
+  empty-lines:
+    max: 2
+    max-start: 0
+    max-end: 1
+
+  # Trailing spaces
+  trailing-spaces: enable
+
+  # Comments indentation
+  comments-indentation: disable

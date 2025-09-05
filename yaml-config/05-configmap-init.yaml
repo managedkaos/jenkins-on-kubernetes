@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins-yaml-init
+  labels:
+    app.kubernetes.io/name: jenkins-yaml
+data:
+  10-security.groovy: |
+    import jenkins.model.*
+    import hudson.security.*
+
+    def instance = Jenkins.getInstanceOrNull()
+    if (instance == null) { return }
+
+    def user = System.getenv('JENKINS_ADMIN_ID') ?: 'admin'
+    def pass = System.getenv('JENKINS_ADMIN_PASSWORD') ?: 'admin'
+
+    def hudsonRealm = new HudsonPrivateSecurityRealm(false)
+    if (hudson.model.User.getById(user, false) == null) {
+      hudsonRealm.createAccount(user, pass)
+    }
+    instance.setSecurityRealm(hudsonRealm)
+
+    def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
+    strategy.setAllowAnonymousRead(false)
+    instance.setAuthorizationStrategy(strategy)
+
+    instance.save()
