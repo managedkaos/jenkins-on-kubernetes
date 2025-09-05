@@ -5,4 +5,5 @@ setup:
 
 lint:
 	yamllint ./yaml-config
+	yamllint ./helm-config
 

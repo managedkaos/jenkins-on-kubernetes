@@ -1,0 +1,18 @@
+controller:
+  admin:
+    existingSecret: jenkins-shared-admin-secret
+    userKey: JENKINS_ADMIN_ID
+    passwordKey: JENKINS_ADMIN_PASSWORD
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "2"
+      memory: "4Gi"
+
+  serviceType: ClusterIP
+
+persistence:
+  enabled: true
+  size: 8Gi

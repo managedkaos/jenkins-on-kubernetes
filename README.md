@@ -135,7 +135,13 @@ flowchart TB
     kubectl -n "$NS" get pods -l app.kubernetes.io/name=jenkins-yaml
     ```
 
-1. Streaming logs from the controller:
+1. Watch pods starting and follow status:
+
+    ```bash
+    kubectl get pods -w
+    ```
+
+1. Streaming logs from the controller deployment:
 
     ```bash
     kubectl -n "$NS" logs -f deploy/jenkins-yaml-controller
@@ -152,3 +158,59 @@ flowchart TB
     ```
 
     Sample `describe pod` output: [Describe pod output](./yaml-config/sample-describe-pods.txt)
+
+## Deploy Jenkins Using Helm Configurations
+
+### Resources and Configurations
+
+Review the values values file that points to the existing secret.
+
+- [values-jenkins-helm.yaml](./helm-config/values-jenkins-helm.yaml)
+
+The Jenkins chart accepts an existing Secret for the initial admin creds and lets you specify the key names.
+
+The default chart keys are `jenkins-admin-user` / `jenkins-admin-password`, but we override so we can reuse the pre-defined Secret as-is.
+
+### Deployment and Service Rollout
+
+The official Jenkins Helm chart is published at charts.jenkins.io. It deploys a Jenkins controller with Kubernetes agent integration.
+
+1. Install/upgrade the chart (release name = jenkins-helm).
+
+    ```bash
+    # add/update repo once
+    helm repo add jenkins https://charts.jenkins.io
+    helm repo update
+
+    # install and/or upgrade into the same namespace $NS
+    helm upgrade --install jenkins-helm jenkins/jenkins -n "$NS" -f helm-config/values-jenkins-helm.yaml
+    ```
+
+1. Watch rollout + tail logs.
+
+    The chart uses a StatefulSet for the controller, so target that for rollout status.
+
+    ```bash
+    kubectl -n "$NS" logs statefulset/jenkins-helm -c jenkins --since=10m
+    ```
+
+### Connect to the Jenkins Web Interface
+
+1. Use port forwarding to connect localhost to the Jenkins service.
+
+    Use port `8081` on the host side to allow both Jenkins deployments to run at the same time.
+
+    ```bash
+    kubectl -n "$NS" port-forward svc/jenkins-helm 8081:8080
+    ```
+
+1. Open [http://localhost:8081](http://localhost:8081).
+
+    Login using the values you created for the following:
+
+    - Username: `JENKINS_ADMIN_ID`
+    - Password: `JENKINS_ADMIN_PASSWORD`
+
+1. Enter `ctrl+c` to end the port-forwarding session.
+
+### Debugging
