@@ -11,18 +11,18 @@ This repository contains the necessary files and configurations to deploy Jenkin
 
 ## Setup
 
+1. Create the namespace using [namespace.yml](./namespace.yml).
+
+    ```bash
+    kubectl apply -f namespace.yaml
+    ```
+
 1. Using an environment file (ie, `.env`) other method, export variables for the configuration into the current session.
 
     ```bash
     export NS=jenkins
     export JENKINS_ADMIN_ID=admin
     export JENKINS_ADMIN_PASSWORD=qwerty  # Use a value from `openssl rand -base64 18`
-    ```
-
-1. Create the namespace using [namespace.yml](./namespace.yml).
-
-    ```bash
-    kubectl apply -f namespace.yaml
     ```
 
 1. Create a secret for Jenkins credentials
@@ -88,13 +88,21 @@ flowchart TB
     kubectl -n "$NS" apply -f ./yaml-config
     ```
 
-    Or apply them once at a time in the number they are ordered.
+    Or apply them one at a time in the number they are ordered.
 
-1. Follow the deployment.
+1. Follow the deployment rollout while viewing the logs
 
     ```bash
-    kubectl -n "$NS" rollout status deployment/jenkins-yaml-controller
+    kubectl -n "$NS" rollout status deployment/jenkins-yaml-controller & kubectl -n "$NS" logs -f deploy/jenkins-yaml-controller
     ```
+
+    The deployment is complete when the following is reported:
+
+    ```markdown
+    INFO hudson.lifecycle.Lifecycle#onReady: Jenkins is fully up and running
+    ```
+
+    Enter `ctrl+c` to stop following the logs.
 
 1. When the deplopyment completes, review the resources:
 
@@ -112,8 +120,35 @@ flowchart TB
 
 1. Open [http://localhost:8080](http://localhost:8080).
 
-    Use the the values for `JENKINS_ADMIN_ID` (Username) and `JENKINS_ADMIN_PASSWORD` (Password) to login.
+    Login using the values you created for the following:
+
+    - Username: `JENKINS_ADMIN_ID`
+    - Password: `JENKINS_ADMIN_PASSWORD`
 
 1. Enter `ctrl+c` to end the port-forwarding session.
 
-#
+### Debugging
+
+1. Find pod names:
+
+    ```bash
+    kubectl -n "$NS" get pods -l app.kubernetes.io/name=jenkins-yaml
+    ```
+
+1. Streaming logs from the controller:
+
+    ```bash
+    kubectl -n "$NS" logs -f deploy/jenkins-yaml-controller
+    ```
+
+1. View all pod details including containers, volumes, events, and more:
+
+    ```bash
+    # get the pod name
+    POD=$(kubectl -n "$NS" get pods -l app.kubernetes.io/name=jenkins-yaml -o jsonpath='{.items[0].metadata.name}')
+
+    # describe shows the Events section with the real reason
+    kubectl -n "$NS" describe pod "$POD"
+    ```
+
+    Sample `describe pod` output: [Describe pod output](./yaml-config/sample-describe-pods.txt)

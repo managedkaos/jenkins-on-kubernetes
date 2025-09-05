@@ -1,0 +1,76 @@
+Name:             jenkins-yaml-controller-5d648c8c45-zdkjx
+Namespace:        jenkins
+Priority:         0
+Service Account:  jenkins-yaml-sa
+Node:             orbstack/198.19.249.2
+Start Time:       Fri, 05 Sep 2025 12:53:18 -0700
+Labels:           app.kubernetes.io/component=controller
+                  app.kubernetes.io/name=jenkins-yaml
+                  pod-template-hash=5d648c8c45
+Annotations:      kubectl.kubernetes.io/restartedAt: 2025-09-05T12:53:18-07:00
+Status:           Running
+IP:               192.168.194.50
+IPs:
+  IP:           192.168.194.50
+  IP:           fd07:b51a:cc66:a::497
+Controlled By:  ReplicaSet/jenkins-yaml-controller-5d648c8c45
+Containers:
+  jenkins-controller:
+    Container ID:   docker://403bec621621bdf0ec74fb3c898836df51b95cdc65932f70fbecc955d5f59698
+    Image:          jenkins/jenkins:lts-jdk17
+    Image ID:       docker-pullable://jenkins/jenkins@sha256:be8c0f70f4cbab154cafa2f62b696147c12bfc2bf883eaa241c061bf5096df3b
+    Ports:          8080/TCP (http), 50000/TCP (agent)
+    Host Ports:     0/TCP (http), 0/TCP (agent)
+    State:          Running
+      Started:      Fri, 05 Sep 2025 12:53:19 -0700
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  4Gi
+    Requests:
+      cpu:      500m
+      memory:   1Gi
+    Liveness:   http-get http://:http/login delay=90s timeout=1s period=20s #success=1 #failure=6
+    Readiness:  http-get http://:http/login delay=60s timeout=1s period=10s #success=1 #failure=12
+    Environment:
+      JAVA_OPTS:               -Djenkins.install.runSetupWizard=false
+      JENKINS_ADMIN_ID:        <set to the key 'JENKINS_ADMIN_ID' in secret 'jenkins-shared-admin-secret'>        Optional: false
+      JENKINS_ADMIN_PASSWORD:  <set to the key 'JENKINS_ADMIN_PASSWORD' in secret 'jenkins-shared-admin-secret'>  Optional: false
+    Mounts:
+      /usr/share/jenkins/ref/init.groovy.d from jenkins-init (rw)
+      /var/jenkins_home from jenkins-home (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-kgmwv (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  jenkins-home:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  jenkins-yaml-home
+    ReadOnly:   false
+  jenkins-init:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      jenkins-yaml-init
+    Optional:  false
+  kube-api-access-kgmwv:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  32m   default-scheduler  Successfully assigned jenkins/jenkins-yaml-controller-5d648c8c45-zdkjx to orbstack
+  Normal  Pulled     32m   kubelet            Container image "jenkins/jenkins:lts-jdk17" already present on machine
+  Normal  Created    32m   kubelet            Created container jenkins-controller
+  Normal  Started    32m   kubelet            Started container jenkins-controller
